@@ -170,7 +170,7 @@ import fishFragmentShader from './shaders/fishFragment.glsl?raw';
                 const distToNeighbour = b.pos.distanceTo(this.pos);
                 const oppositeDirectionFromNeighbour = this.pos.clone().sub(b.pos);
                 if (distToNeighbour != 0) {
-                    oppositeDirectionFromNeighbour.divideScalar(distToNeighbour);
+                    oppositeDirectionFromNeighbour.divideScalar(distToNeighbour*distToNeighbour);
                 }
                 resultVectorSum.add(oppositeDirectionFromNeighbour);
             }
