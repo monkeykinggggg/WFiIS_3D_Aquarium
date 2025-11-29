@@ -1,3 +1,11 @@
 #myCanvas {
-	background: radial-gradient(farthest-side, #f0e9d1, #eddc98);
+	background-image: url('textures/background.jpg');
+	background-size: cover;       
+    background-position: center; 
+    background-repeat: no-repeat;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
 }
+body { margin: 0; overflow: hidden; background-color: #000; }
