@@ -1,11 +1,13 @@
+html, body {
+	height: 100%;
+	margin: auto;
+	overflow: hidden;
+}
 #myCanvas {
+	display: block;
 	background-image: url('textures/background.jpg');
 	background-size: cover;       
     background-position: center; 
-    background-repeat: no-repeat;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	z-index: 1;
+	height: 100vh;
+	width: 100vw;
 }
-body { margin: 0; overflow: hidden; background-color: #000; }
