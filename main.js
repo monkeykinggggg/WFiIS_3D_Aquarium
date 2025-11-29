@@ -118,8 +118,9 @@ import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/
 
         move(deltaTime) {
             this.neighborhood = [];
+            const radiusSq = simulationParams.NEIGHBORHOOD_RADIUS * simulationParams.NEIGHBORHOOD_RADIUS;
             for (const b of boids) {
-                if (b!= this && this.pos.distanceToSquared(b.pos) <= (simulationParams.NEIGHBORHOOD_RADIUS*simulationParams.NEIGHBORHOOD_RADIUS)) {
+                if (b!= this && this.pos.distanceToSquared(b.pos) <= radiusSq) {
                     this.neighborhood.push(b);
                 }
             }
@@ -275,7 +276,7 @@ import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/
         map: waterTexture,
         opacity: 0.3,
         transparent: true,
-        side: THREE.BockSide,
+        side: THREE.FrontSide,
         shininess: 100
     });
     const boxGeometry = new THREE.BoxGeometry(1.7, 1, 1); 
@@ -289,7 +290,7 @@ import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/
 
     const floorMaterial = new THREE.MeshPhongMaterial({
         map: floorTexture,
-        shininess: 20 
+        shininess: 10 
     });
     const floorGeometry = new THREE.BoxGeometry(1.7, 0.02,1);
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
