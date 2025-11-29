@@ -3,6 +3,11 @@ import { OrbitControls } from "https://unpkg.com/three@0.126.1/examples/jsm/cont
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/OBJLoader.js";
 
+import waterVertexShader from './shaders/waterVertex.glsl?raw';
+import waterFragmentShader from './shaders/waterFragment.glsl?raw';
+import fishVertexShader from './shaders/fishVertex.glsl?raw';
+import fishFragmentShader from './shaders/fishFragment.glsl?raw';
+
 (async function() {
     const canvas = document.getElementById("myCanvas");
     
@@ -64,14 +69,28 @@ import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/
 
             fishObj.traverse(function (child) {
                 if (child.isMesh) {
-                    child.material = new THREE.MeshPhongMaterial({ map: fishTexture });
+                child.material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        uTexture: { value: fishTexture }, // Przekazujemy teksturę
+                        uTime: { value: 0 }               // Czas do animacji
+                    },
+                    vertexShader: fishVertexShader,
+                    fragmentShader: fishFragmentShader
+                });
                 }
             });
             fishGeometryTemplate = fishObj;
 
             longFishObj.traverse(function (child) {
                 if (child.isMesh) {
-                    child.material = new THREE.MeshPhongMaterial({ map: longFishTexture });
+                child.material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        uTexture: { value: longFishTexture },
+                        uTime: { value: 0 }
+                    },
+                    vertexShader: fishVertexShader,
+                    fragmentShader: fishFragmentShader
+                });
                 }
             });
             longFishGeometryTemplate = longFishObj;
@@ -220,8 +239,8 @@ import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/
     const scene = new THREE.Scene();
 
     // Pomocniczy układ współrzędnych
-    const axesHelper = new THREE.AxesHelper(1);
-    scene.add(axesHelper);
+    // const axesHelper = new THREE.AxesHelper(1);
+    // scene.add(axesHelper);
 
     const camera = new THREE.PerspectiveCamera(100, canvas.width / canvas.height, 0.001, 1000);
     camera.position.set(camera_position.getX(), camera_position.getY(), camera_position.getZ());
@@ -268,16 +287,22 @@ import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/
         });
     });
 
-    const waterTexture = textureLoader.load('textures/water.jpg');
+    const waterTexture = textureLoader.load('textures/water01.png');
     waterTexture.wrapS = THREE.RepeatWrapping;
     waterTexture.wrapT = THREE.RepeatWrapping;
 
-    const waterMaterial = new THREE.MeshPhongMaterial({
-        map: waterTexture,
-        opacity: 0.3,
+
+    const waterMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            uTexture: { value: waterTexture },
+            uTime: { value: 0 },
+            uColor: { value: new THREE.Color("#2d5fc2ff") }
+        },
+        vertexShader: waterVertexShader,
+        fragmentShader: waterFragmentShader,
         transparent: true,
-        side: THREE.FrontSide,
-        shininess: 100
+        side: THREE.BackSide,
+        depthWrite: false,
     });
     const boxGeometry = new THREE.BoxGeometry(1.7, 1, 1); 
     const water = new THREE.Mesh(boxGeometry, waterMaterial);
@@ -337,9 +362,19 @@ import { OBJLoader } from "https://unpkg.com/three@0.126.1/examples/jsm/loaders/
             const deltaTime = now - lastTime;
             lastTime = now;
 
+            if (water.material.uniforms) {
+                water.material.uniforms.uTime.value = t_anim * 0.01;
+            }
+            const timeValue = t_anim * 0.02;
             for (const b of boids) {
                 b.move(deltaTime);
+                b.shape.traverse((child) => {
+                    if (child.isMesh && child.material.uniforms) {
+                        child.material.uniforms.uTime.value = timeValue;
+                    }
+                });
             }
+            
 
             const cameraMoveSpeed = 0.02; 
             const cameraRotateSpeed = 0.02;
